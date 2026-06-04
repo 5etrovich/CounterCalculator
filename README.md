@@ -1,130 +1,64 @@
-# CounterCalculator - Smart Utility Bills Calculator
+# CounterCalculator — Калькулятор коммунальных платежей
 
 ![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)
 ![Kotlin](https://img.shields.io/badge/Kotlin-0095D5?&style=for-the-badge&logo=kotlin&logoColor=white)
 ![Material Design](https://img.shields.io/badge/Material%20Design-0081CB?style=for-the-badge&logo=material-design&logoColor=white)
 
-A modern Android application for calculating utility bills based on meter readings. The app automatically saves your previous readings and allows you to customize tariffs according to your needs.
+Приложение для Android, которое помогает считать коммунальные платежи по показаниям счётчиков. Поддерживает несколько квартир, запоминает предыдущие показания и автоматически рассчитывает водоотведение.
 
-## Features
+---
 
-### Smart Data Management
-- **Automatic Previous Readings**: The app automatically saves your current readings as previous ones for the next month
-- **Persistent Storage**: All data is stored locally on your device and persists even after app restarts
-- **Customizable Settings**: Easily modify tariffs, fixed payments, and previous readings
-- **Regional Support**: Works correctly with both dot and comma decimal separators
+*Android app for calculating utility bills based on meter readings. Supports multiple apartments, remembers previous readings, and auto-calculates wastewater disposal.*
 
-### Calculation & Analytics
-- **Automatic Calculations**: All utility payments are calculated automatically
-- **Detailed Breakdown**: See consumption details and cost calculations for each service
-- **Water Disposal Auto-calculation**: Wastewater costs are calculated based on your water consumption
-- **Fixed Payments Support**: Include regular fixed payments like trash collection and internet
+---
 
-### User Experience
-- **Material Design**: Clean, modern interface following Material Design guidelines
-- **Intuitive Navigation**: Simple flow from meter input to final results
-- **Data Validation**: Input validation with helpful error messages
-- **Scrollable Interface**: Comfortable data entry with smooth scrolling
+## Возможности
 
-## Installation
+- **Несколько квартир** — добавьте любое количество адресов
+- **Автозапоминание показаний** — после расчёта текущие показания становятся предыдущими на следующий месяц
+- **Водоотведение** — рассчитывается автоматически: сумма водопотребления × тариф (по ПП РФ №354)
+- **Фиксированные платежи** — мусор, интернет и другие постоянные расходы
+- **Любые тарифы** — настраиваются индивидуально для каждой квартиры
+- **Работает офлайн** — все данные хранятся только на устройстве, интернет не нужен
+- **Без разрешений** — приложение не запрашивает никаких разрешений
 
-### Download APK
-1. Go to the [Releases section](https://github.com/5etrovich/CounterCalculator/releases)
-2. Download the latest `app-release.apk` file
-3. Install on your Android device
+## Установка
 
-### Build from Source
+### Скачать APK
+Перейдите в раздел [Releases](https://github.com/5etrovich/CounterCalculator/releases) и скачайте последний `app-release.apk`.
+
+### Собрать самостоятельно
 ```bash
 git clone https://github.com/5etrovich/CounterCalculator.git
 cd CounterCalculator
+./gradlew assembleRelease
 ```
 
-## How to Use
-### First Time Setup
-1. Open the app and select your apartment
-2. Enter your current meter readings for all services
-3. The app will automatically save these as your starting point
+Требования: Android Studio, Android SDK 21+, Kotlin 1.9+
 
-### Regular Usage
-1. Each month, open the app and select your apartment
-2. Previous readings will be automatically loaded
-3. Enter only the current readings
-4. View the detailed calculation results
+## Как пользоваться
 
-### Customizing Settings
-1. Tap "Edit Data" from the main screen
-2. Select the apartment you want to modify
-3. Adjust tariffs, fixed payments, or previous readings as needed
-4. Save your changes - they'll be used in all future calculations
+1. **Первый запуск** — добавьте квартиру: укажите название, счётчики с тарифами и фиксированные платежи
+2. **Каждый месяц** — выберите квартиру → введите текущие показания → нажмите «Начать расчёт»
+3. Приложение покажет детализацию по каждому счётчику и итоговую сумму
+4. Показания автоматически сохранятся для следующего месяца
 
-## Technical Details
+## Технические детали
 
-### Architecture
-- Language: Kotlin
-- Minimum Android Version: 5.0 (API 21)
-- Data Storage: SharedPreferences with JSON serialization
-- UI Framework: Material Design 3
+| | |
+|---|---|
+| Язык | Kotlin |
+| Минимальный Android | 5.0 (API 21) |
+| Хранение данных | SharedPreferences (локально) |
+| Разрешения | Нет |
+| Интернет | Не требуется |
 
-### Data Persistence
-The app uses Android's SharedPreferences for reliable local storage:
-- Meter readings are automatically saved after each calculation
-- Tariff changes are applied immediately
-- All data survives app updates and device restarts
-- No internet connection required
+## Конфиденциальность
 
-### Supported Utility Services
-- Electricity (multiple tariff zones supported)
-- Cold water supply
-- Hot water supply
-- Wastewater disposal (auto-calculated)
-- Fixed payments (trash, internet, etc.)
+Приложение не собирает никаких данных, не требует интернета и не отправляет ничего за пределы устройства.
 
-## Project Structure
-```text
-app/
-├── java/com/example/countercalculator/
-│   ├── MainActivity.kt          # Welcome screen
-│   ├── ApartmentsActivity.kt    # Apartment selection
-│   ├── InputActivity.kt         # Meter readings input
-│   ├── ResultsActivity.kt       # Calculation results
-│   ├── EditDataActivity.kt      # Data customization
-│   ├── CalculatorViewModel.kt   # Calculation logic
-│   ├── DataStorage.kt           # Local storage management
-│   └── AppData.kt              # Application state
-├── res/
-│   ├── layout/                  # UI layouts
-│   ├── values/                  # Resources and themes
-│   └── mipmap/                  # App icons
-```
+## Разработчик
 
-## Development
+**5etrovich** — [GitHub](https://github.com/5etrovich)
 
-### Requirements
-- Android Studio Arctic Fox or newer
-- Android SDK 21+
-- Kotlin 1.6+
-
-### Building
-1. Clone the repository
-2. Open in Android Studio
-3. Wait for Gradle sync to complete
-4. Run on an emulator or physical device
-
-### Key Components
-- **DataStorage**: Handles all local data persistence using SharedPreferences
-- **CalculatorViewModel**: Contains the business logic for bill calculations
-- **EditDataActivity**: Provides interface for customizing all app settings
-
-### Privacy
-This app respects your privacy:
-- All data stays on your device
-- No internet permissions required
-- No data collection or tracking
-- Complete control over your information
-
-## Author
-### 5etrovich
-- GitHub: @5etrovich
-
-## Support
-If you find this app useful, please consider giving the repository a star!
+Если приложение оказалось полезным — поставьте звёздочку ⭐

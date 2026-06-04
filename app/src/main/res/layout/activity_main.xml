@@ -61,14 +61,17 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnStart"
-        android:layout_width="220dp"
-        android:layout_height="50dp"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
         android:layout_gravity="center"
-        android:layout_marginBottom="80dp"
+        android:layout_marginBottom="60dp"
         android:text="Начать расчет"
+        android:textSize="18sp"
         android:textColor="@color/white"
         app:backgroundTint="@color/light_blue"
-        app:cornerRadius="8dp"
-        android:elevation="2dp" />
+        app:cornerRadius="12dp"
+        app:strokeColor="#0288D1"
+        app:strokeWidth="2dp"
+        android:elevation="4dp" />
 
 </LinearLayout>

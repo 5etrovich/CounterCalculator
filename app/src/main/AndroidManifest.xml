@@ -12,14 +12,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CounterCalculator">
         <activity
-            android:name=".EditDataActivity"
+            android:name=".CreateApartmentActivity"
             android:exported="false" />
         <activity
             android:name=".ResultsActivity"
             android:exported="false" />
         <activity
             android:name=".InputActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ApartmentsActivity"
             android:exported="false" />
@@ -28,7 +29,6 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

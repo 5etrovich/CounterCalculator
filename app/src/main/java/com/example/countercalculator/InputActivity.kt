@@ -4,7 +4,9 @@ import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.content.res.ColorStateList
 import android.widget.*
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 
 class InputActivity : AppCompatActivity() {
@@ -16,39 +18,29 @@ class InputActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_input)
 
-        dataStorage = DataStorage(this)
-
-        setupToolbar()
-        setupInputs()
-    }
-
-    private fun setupToolbar() {
-        val toolbar = findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
-        val apartmentNumber = AppData.currentApartmentNumber
-        val apartmentName = when (apartmentNumber) {
-            1 -> "Вертолётчиков"
-            2 -> "Проспект победы"
-            3 -> "Вертолётная"
-            else -> "Неизвестная"
-        }
-        toolbar.title = "Ввод данных: $apartmentName"
-        toolbar.setNavigationOnClickListener {
+        val config = AppData.currentApartmentConfig
+        if (config == null) {
             finish()
+            return
         }
+
+        dataStorage = DataStorage(this)
+        setupToolbar(config.name)
+        setupInputs(config)
     }
 
-    private fun setupInputs() {
+    private fun setupToolbar(apartmentName: String) {
+        val toolbar = findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
+        toolbar.title = "Ввод данных: $apartmentName"
+        toolbar.setNavigationOnClickListener { finish() }
+    }
+
+    private fun setupInputs(config: ApartmentConfig) {
         val layout = findViewById<LinearLayout>(R.id.input_layout)
         layout.removeAllViews()
 
-        val apartmentNumber = AppData.currentApartmentNumber
-        val counters = getCountersForApartment(apartmentNumber)
+        val previousData = dataStorage.loadApartmentData(config.id)
 
-        // Загружаем предыдущие данные
-        val previousData = dataStorage.loadApartmentData(apartmentNumber)
-
-        // Добавляем инструкцию
-        // Добавляем инструкцию
         val instruction = TextView(this).apply {
             text = "Заполните текущие показания. Предыдущие загружены автоматически.\nМожно использовать точку или запятую как разделитель."
             setTextColor(Color.GRAY)
@@ -56,20 +48,15 @@ class InputActivity : AppCompatActivity() {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                bottomMargin = 40
-            }
+            ).apply { bottomMargin = 40 }
         }
         layout.addView(instruction)
 
-        // Добавляем карточки ввода для каждого счетчика
-        counters.forEach { counterName ->
-            val previousValue = previousData[counterName] ?: 0.0
-            val card = createInputCard(counterName, previousValue)
-            layout.addView(card)
+        config.counters.forEach { counter ->
+            val previousValue = previousData[counter.name] ?: 0.0
+            layout.addView(createInputCard(counter.name, previousValue))
         }
 
-        // Добавляем кнопку РАССЧИТАТЬ в конец скролла
         val buttonContainer = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = android.view.Gravity.CENTER_HORIZONTAL
@@ -77,31 +64,27 @@ class InputActivity : AppCompatActivity() {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply {
-                topMargin = 40
-                bottomMargin = 80
+                topMargin = dpToPx(24)
+                bottomMargin = dpToPx(300)
             }
         }
 
-        val calculateButton = Button(this).apply {
+        val calculateButton = MaterialButton(this).apply {
             text = "РАССЧИТАТЬ"
             setTextColor(Color.WHITE)
-            setBackgroundColor(Color.parseColor("#4FC3F7"))
-            textSize = 16f
+            backgroundTintList = ColorStateList.valueOf(Color.parseColor("#4FC3F7"))
+            strokeColor = ColorStateList.valueOf(Color.parseColor("#0288D1"))
+            strokeWidth = dpToPx(2)
+            cornerRadius = dpToPx(12)
+            textSize = 18f
             layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                width = dpToPx(220)
-                height = dpToPx(55)
-            }
-
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                dpToPx(64)
+            )
             setOnClickListener {
                 if (collectInputData()) {
-                    // Сохраняем текущие данные как предыдущие для следующего месяца
-                    saveCurrentDataAsPrevious()
-
-                    val intent = Intent(this@InputActivity, ResultsActivity::class.java)
-                    startActivity(intent)
+                    saveCurrentDataAsPrevious(config.id)
+                    startActivity(Intent(this@InputActivity, ResultsActivity::class.java))
                 }
             }
         }
@@ -115,9 +98,7 @@ class InputActivity : AppCompatActivity() {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                bottomMargin = 20
-            }
+            ).apply { bottomMargin = 20 }
             setCardBackgroundColor(Color.WHITE)
             cardElevation = 3f
             radius = 8f
@@ -131,7 +112,6 @@ class InputActivity : AppCompatActivity() {
                 setPadding(40, 30, 40, 30)
             }
 
-            // Заголовок счетчика
             val title = TextView(this@InputActivity).apply {
                 text = counterName
                 setTextColor(Color.BLACK)
@@ -139,13 +119,10 @@ class InputActivity : AppCompatActivity() {
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
-                ).apply {
-                    bottomMargin = 20
-                }
+                ).apply { bottomMargin = 20 }
             }
             cardLayout.addView(title)
 
-            // Поля ввода
             val inputLayout = LinearLayout(this@InputActivity).apply {
                 orientation = LinearLayout.HORIZONTAL
                 layoutParams = LinearLayout.LayoutParams(
@@ -154,59 +131,45 @@ class InputActivity : AppCompatActivity() {
                 )
             }
 
-            // Поле "Предыдущее" (только для чтения)
             val prevInputLayout = LinearLayout(this@InputActivity).apply {
                 orientation = LinearLayout.VERTICAL
-                layoutParams = LinearLayout.LayoutParams(
-                    0,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                ).apply {
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                     weight = 1f
                     marginEnd = 10
                 }
             }
-
             val prevLabel = TextView(this@InputActivity).apply {
                 text = "Предыдущее (авто)"
                 setTextColor(Color.GRAY)
                 textSize = 14f
             }
-
             val prevInput = EditText(this@InputActivity).apply {
                 setText(String.format("%.2f", previousValue))
-                isEnabled = false // Запрещаем редактирование
+                isEnabled = false
                 setBackgroundColor(Color.parseColor("#F5F5F5"))
                 setTextColor(Color.DKGRAY)
             }
-
             prevInputLayout.addView(prevLabel)
             prevInputLayout.addView(prevInput)
 
-            // Поле "Текущее"
             val currInputLayout = LinearLayout(this@InputActivity).apply {
                 orientation = LinearLayout.VERTICAL
-                layoutParams = LinearLayout.LayoutParams(
-                    0,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                ).apply {
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                     weight = 1f
                     marginStart = 10
                 }
             }
-
             val currLabel = TextView(this@InputActivity).apply {
                 text = "Текущее"
                 setTextColor(Color.GRAY)
                 textSize = 14f
             }
-
             val currInput = EditText(this@InputActivity).apply {
                 hint = "0.0"
                 setBackgroundResource(android.R.drawable.edit_text)
                 inputType = android.text.InputType.TYPE_CLASS_NUMBER or
                         android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
             }
-
             currInputLayout.addView(currLabel)
             currInputLayout.addView(currInput)
 
@@ -221,22 +184,18 @@ class InputActivity : AppCompatActivity() {
 
     private fun collectInputData(): Boolean {
         try {
-            val apartmentNumber = AppData.currentApartmentNumber
             val inputData = mutableMapOf<String, Pair<Double, Double>>()
 
             inputFields.forEach { (counterName, fields) ->
-                val prevText = fields.first.text.toString().trim()
-                var currText = fields.second.text.toString().trim()
-
-                // ЗАМЕНЯЕМ ЗАПЯТЫЕ НА ТОЧКИ
-                currText = currText.replace(',', '.')
+                val prevText = fields.first.text.toString().trim().replace(',', '.')
+                val currText = fields.second.text.toString().trim().replace(',', '.')
 
                 if (currText.isEmpty()) {
                     Toast.makeText(this, "Заполните текущее значение для '$counterName'", Toast.LENGTH_SHORT).show()
                     return false
                 }
 
-                val prevValue = prevText.replace(',', '.').toDouble()
+                val prevValue = prevText.toDouble()
                 val currValue = currText.toDouble()
 
                 if (currValue < prevValue) {
@@ -247,10 +206,8 @@ class InputActivity : AppCompatActivity() {
                 inputData[counterName] = Pair(prevValue, currValue)
             }
 
-            // Сохраняем данные для расчета
             AppData.inputData.clear()
             AppData.inputData.putAll(inputData)
-
             return true
 
         } catch (e: NumberFormatException) {
@@ -262,36 +219,22 @@ class InputActivity : AppCompatActivity() {
         }
     }
 
-    private fun saveCurrentDataAsPrevious() {
+    private fun saveCurrentDataAsPrevious(apartmentId: Int) {
         try {
-            val apartmentNumber = AppData.currentApartmentNumber
             val previousData = mutableMapOf<String, Double>()
-
             inputFields.forEach { (counterName, fields) ->
-                val currText = fields.second.text.toString().trim()
+                val currText = fields.second.text.toString().trim().replace(',', '.')
                 if (currText.isNotEmpty()) {
-                    previousData[counterName] = currText.toDouble()
+                    previousData[counterName] = currText.toDoubleOrNull() ?: 0.0
                 }
             }
-
-            dataStorage.saveApartmentData(apartmentNumber, previousData)
-
+            dataStorage.saveApartmentData(apartmentId, previousData)
         } catch (e: Exception) {
-            // Игнорируем ошибки сохранения, чтобы не мешать основному расчету
-        }
-    }
-
-    private fun getCountersForApartment(apartmentId: Int): List<String> {
-        return when (apartmentId) {
-            1 -> listOf("Электричество 1", "Электричество 2", "Электричество 3", "Холодная вода", "Горячая вода")
-            2 -> listOf("Электричество 1", "Электричество 2", "Холодная вода", "Горячая вода")
-            3 -> listOf("Электричество 1", "Электричество 2", "Холодная вода 1", "Холодная вода 2", "Горячая вода 1", "Горячая вода 2")
-            else -> emptyList()
+            // не мешаем основному расчёту
         }
     }
 
     private fun dpToPx(dp: Int): Int {
-        val scale = resources.displayMetrics.density
-        return (dp * scale + 0.5f).toInt()
+        return (dp * resources.displayMetrics.density + 0.5f).toInt()
     }
 }

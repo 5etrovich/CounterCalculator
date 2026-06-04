@@ -1,68 +1,169 @@
 package com.example.countercalculator
 
 import android.content.Intent
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Button
-import android.widget.Toast
+import android.content.res.ColorStateList
+import android.widget.*
+import androidx.appcompat.app.AlertDialog
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 
 class ApartmentsActivity : AppCompatActivity() {
 
     private lateinit var dataStorage: DataStorage
+    private lateinit var apartmentsContainer: LinearLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_apartments)
 
         dataStorage = DataStorage(this)
-
         setupToolbar()
-        setupClickListeners()
-        setupEditButton()
+        apartmentsContainer = findViewById(R.id.apartments_container)
+
+        findViewById<Button>(R.id.btnAddApartment).setOnClickListener {
+            startActivity(Intent(this, CreateApartmentActivity::class.java))
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadApartments()
     }
 
     private fun setupToolbar() {
         val toolbar = findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
-        toolbar.title = "Выбор квартиры"
-        toolbar.setNavigationOnClickListener {
-            finish()
+        toolbar.title = "Мои квартиры"
+        toolbar.setNavigationOnClickListener { finish() }
+    }
+
+    private fun loadApartments() {
+        apartmentsContainer.removeAllViews()
+        val apartments = dataStorage.loadAllApartments()
+
+        if (apartments.isEmpty()) {
+            apartmentsContainer.addView(TextView(this).apply {
+                text = "Нет квартир. Нажмите «+ Добавить квартиру»."
+                setTextColor(Color.GRAY)
+                textSize = 16f
+                gravity = android.view.Gravity.CENTER
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply { topMargin = 40 }
+            })
+        }
+
+        apartments.forEach { config ->
+            apartmentsContainer.addView(createApartmentCard(config))
         }
     }
 
-    private fun setupClickListeners() {
-        val card1 = findViewById<MaterialCardView>(R.id.cardApartment1)
-        val card2 = findViewById<MaterialCardView>(R.id.cardApartment2)
-        val card3 = findViewById<MaterialCardView>(R.id.cardApartment3)
+    private fun createApartmentCard(config: ApartmentConfig): MaterialCardView {
+        return MaterialCardView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { bottomMargin = dpToPx(12) }
+            setCardBackgroundColor(Color.WHITE)
+            cardElevation = 4f
+            radius = 12f
+            strokeWidth = dpToPx(1)
+            strokeColor = Color.parseColor("#BDBDBD")
 
-        card1.setOnClickListener { selectApartment(1) }
-        card2.setOnClickListener { selectApartment(2) }
-        card3.setOnClickListener { selectApartment(3) }
-    }
+            val column = LinearLayout(this@ApartmentsActivity).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(dpToPx(16), dpToPx(16), dpToPx(16), dpToPx(12))
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+            }
 
-    private fun setupEditButton() {
-        val btnEditData = findViewById<Button>(R.id.btnEditData)
-        btnEditData.setOnClickListener {
-            val intent = Intent(this, EditDataActivity::class.java)
-            startActivity(intent)
+            column.addView(TextView(this@ApartmentsActivity).apply {
+                text = "🏠 ${config.name}"
+                setTextColor(Color.BLACK)
+                textSize = 18f
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply { bottomMargin = dpToPx(12) }
+            })
+
+            column.addView(MaterialButton(this@ApartmentsActivity).apply {
+                text = "Начать расчёт  →"
+                setTextColor(Color.WHITE)
+                backgroundTintList = ColorStateList.valueOf(Color.parseColor("#4FC3F7"))
+                strokeColor = ColorStateList.valueOf(Color.parseColor("#0288D1"))
+                strokeWidth = dpToPx(2)
+                cornerRadius = dpToPx(10)
+                textSize = 16f
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    dpToPx(56)
+                ).apply { bottomMargin = dpToPx(10) }
+                setOnClickListener {
+                    AppData.currentApartmentConfig = config
+                    startActivity(Intent(this@ApartmentsActivity, InputActivity::class.java))
+                }
+            })
+
+            val secondaryRow = LinearLayout(this@ApartmentsActivity).apply {
+                orientation = LinearLayout.HORIZONTAL
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+            }
+
+            secondaryRow.addView(MaterialButton(this@ApartmentsActivity).apply {
+                text = "Изменить"
+                setTextColor(Color.parseColor("#1976D2"))
+                backgroundTintList = ColorStateList.valueOf(Color.WHITE)
+                strokeColor = ColorStateList.valueOf(Color.parseColor("#1976D2"))
+                strokeWidth = dpToPx(1)
+                cornerRadius = dpToPx(8)
+                textSize = 13f
+                layoutParams = LinearLayout.LayoutParams(0, dpToPx(40), 1f).apply {
+                    marginEnd = dpToPx(8)
+                }
+                setOnClickListener {
+                    val intent = Intent(this@ApartmentsActivity, CreateApartmentActivity::class.java)
+                    intent.putExtra("apartment_id", config.id)
+                    startActivity(intent)
+                }
+            })
+
+            secondaryRow.addView(MaterialButton(this@ApartmentsActivity).apply {
+                text = "Удалить"
+                setTextColor(Color.parseColor("#D32F2F"))
+                backgroundTintList = ColorStateList.valueOf(Color.WHITE)
+                strokeColor = ColorStateList.valueOf(Color.parseColor("#D32F2F"))
+                strokeWidth = dpToPx(1)
+                cornerRadius = dpToPx(8)
+                textSize = 13f
+                layoutParams = LinearLayout.LayoutParams(0, dpToPx(40), 1f)
+                setOnClickListener {
+                    AlertDialog.Builder(this@ApartmentsActivity)
+                        .setTitle("Удалить квартиру?")
+                        .setMessage("«${config.name}» будет удалена вместе со всеми данными.")
+                        .setPositiveButton("Удалить") { _, _ ->
+                            dataStorage.deleteApartment(config.id)
+                            loadApartments()
+                        }
+                        .setNegativeButton("Отмена", null)
+                        .show()
+                }
+            })
+
+            column.addView(secondaryRow)
+            addView(column)
         }
     }
 
-    private fun selectApartment(apartmentId: Int) {
-        // Сохраняем выбранную квартиру
-        AppData.currentApartmentNumber = apartmentId
-
-        // Загружаем предыдущие данные
-        loadPreviousData(apartmentId)
-
-        val intent = Intent(this, InputActivity::class.java)
-        startActivity(intent)
-    }
-
-    private fun loadPreviousData(apartmentId: Int) {
-        val previousData = dataStorage.loadApartmentData(apartmentId)
-        if (previousData.isNotEmpty()) {
-            Toast.makeText(this, "Загружены предыдущие показания", Toast.LENGTH_SHORT).show()
-        }
+    private fun dpToPx(dp: Int): Int {
+        return (dp * resources.displayMetrics.density + 0.5f).toInt()
     }
 }
