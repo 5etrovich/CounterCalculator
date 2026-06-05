@@ -7,6 +7,7 @@ import android.content.res.ColorStateList
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 
@@ -35,7 +36,7 @@ class ResultsActivity : AppCompatActivity() {
         if (config == null || inputData.isEmpty()) {
             layout.addView(TextView(this).apply {
                 text = "Нет данных для отображения. Вернитесь и заполните поля."
-                setTextColor(Color.GRAY)
+                setTextColor(ContextCompat.getColor(this@ResultsActivity, R.color.text_secondary))
                 textSize = 16f
             })
             return
@@ -45,7 +46,7 @@ class ResultsActivity : AppCompatActivity() {
 
         layout.addView(TextView(this).apply {
             text = "Детализация расчета"
-            setTextColor(Color.BLACK)
+            setTextColor(ContextCompat.getColor(this@ResultsActivity, R.color.text_primary))
             textSize = 20f
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -64,7 +65,7 @@ class ResultsActivity : AppCompatActivity() {
             layout.addView(sectionTitle("Водоотведение:"))
             layout.addView(TextView(this).apply {
                 text = "Рассчитывается автоматически: суммарный расход воды × тариф водоотведения (по ПП РФ №354)"
-                setTextColor(Color.parseColor("#757575"))
+                setTextColor(ContextCompat.getColor(this@ResultsActivity, R.color.text_secondary))
                 textSize = 13f
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
@@ -91,15 +92,15 @@ class ResultsActivity : AppCompatActivity() {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply {
-                topMargin = 40
-                bottomMargin = 80
+                topMargin = dpToPx(24)
+                bottomMargin = dpToPx(300)
             }
         }
         buttonContainer.addView(MaterialButton(this).apply {
             text = "Вернуться на главную"
-            setTextColor(Color.WHITE)
-            backgroundTintList = ColorStateList.valueOf(Color.parseColor("#4FC3F7"))
-            strokeColor = ColorStateList.valueOf(Color.parseColor("#0288D1"))
+            setTextColor(ContextCompat.getColor(this@ResultsActivity, R.color.white))
+            backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this@ResultsActivity, R.color.light_blue))
+            strokeColor = ColorStateList.valueOf(ContextCompat.getColor(this@ResultsActivity, R.color.light_blue_stroke))
             strokeWidth = dpToPx(2)
             cornerRadius = dpToPx(12)
             textSize = 18f
@@ -116,7 +117,7 @@ class ResultsActivity : AppCompatActivity() {
 
     private fun sectionTitle(text: String) = TextView(this).apply {
         this.text = text
-        setTextColor(Color.BLACK)
+        setTextColor(ContextCompat.getColor(this@ResultsActivity, R.color.text_primary))
         textSize = 18f
         layoutParams = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
@@ -133,7 +134,7 @@ class ResultsActivity : AppCompatActivity() {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply { bottomMargin = 10 }
-            setCardBackgroundColor(Color.parseColor("#F8FBFE"))
+            setCardBackgroundColor(ContextCompat.getColor(this@ResultsActivity, R.color.card_background_alt))
             cardElevation = 2f
             radius = 8f
 
@@ -143,13 +144,13 @@ class ResultsActivity : AppCompatActivity() {
             }
             row.addView(TextView(this@ResultsActivity).apply {
                 text = title
-                setTextColor(Color.BLACK)
+                setTextColor(ContextCompat.getColor(this@ResultsActivity, R.color.text_primary))
                 textSize = 16f
                 layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.6f)
             })
             row.addView(TextView(this@ResultsActivity).apply {
                 text = value
-                setTextColor(Color.GRAY)
+                setTextColor(ContextCompat.getColor(this@ResultsActivity, R.color.text_secondary))
                 textSize = 16f
                 layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.4f)
             })
@@ -163,7 +164,7 @@ class ResultsActivity : AppCompatActivity() {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply { topMargin = 20 }
-            setCardBackgroundColor(Color.parseColor("#4FC3F7"))
+            setCardBackgroundColor(ContextCompat.getColor(this@ResultsActivity, R.color.light_blue))
             cardElevation = 4f
             radius = 12f
 

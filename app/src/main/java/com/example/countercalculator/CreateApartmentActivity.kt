@@ -7,6 +7,7 @@ import android.view.View
 import android.content.res.ColorStateList
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 
@@ -68,7 +69,7 @@ class CreateApartmentActivity : AppCompatActivity() {
         nameInput = EditText(this).apply {
             hint = "Например: ул. Ленина 5, кв. 12"
             textSize = 16f
-            setBackgroundResource(android.R.drawable.edit_text)
+            applyThemeColors()
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
@@ -110,13 +111,13 @@ class CreateApartmentActivity : AppCompatActivity() {
         waterDisposalTariffLayout.addView(TextView(this).apply {
             text = "Тариф водоотведения (руб.):"
             textSize = 14f
-            setTextColor(Color.DKGRAY)
+            setTextColor(ContextCompat.getColor(this@CreateApartmentActivity, R.color.text_secondary))
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         })
         waterDisposalTariffInput = EditText(this).apply {
             hint = "0.00"
             inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
-            setBackgroundResource(android.R.drawable.edit_text)
+            applyThemeColors()
             layoutParams = LinearLayout.LayoutParams(dp(100), LinearLayout.LayoutParams.WRAP_CONTENT)
         }
         waterDisposalTariffLayout.addView(waterDisposalTariffInput)
@@ -147,7 +148,7 @@ class CreateApartmentActivity : AppCompatActivity() {
         }
         previousReadingsSection.addView(TextView(this).apply {
             text = "Предыдущие показания"
-            setTextColor(Color.BLACK)
+            setTextColor(ContextCompat.getColor(this@CreateApartmentActivity, R.color.text_primary))
             textSize = 18f
             setTypeface(null, Typeface.BOLD)
             layoutParams = LinearLayout.LayoutParams(
@@ -170,9 +171,9 @@ class CreateApartmentActivity : AppCompatActivity() {
 
         scrollLayout.addView(MaterialButton(this).apply {
             text = "СОХРАНИТЬ"
-            setTextColor(Color.WHITE)
-            backgroundTintList = ColorStateList.valueOf(Color.parseColor("#4FC3F7"))
-            strokeColor = ColorStateList.valueOf(Color.parseColor("#0288D1"))
+            setTextColor(ContextCompat.getColor(this@CreateApartmentActivity, R.color.white))
+            backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this@CreateApartmentActivity, R.color.light_blue))
+            strokeColor = ColorStateList.valueOf(ContextCompat.getColor(this@CreateApartmentActivity, R.color.light_blue_stroke))
             strokeWidth = dp(2)
             cornerRadius = dp(12)
             textSize = 18f
@@ -181,7 +182,7 @@ class CreateApartmentActivity : AppCompatActivity() {
                 dp(64)
             ).apply {
                 topMargin = dp(32)
-                bottomMargin = dp(80)
+                bottomMargin = dp(300)
             }
             setOnClickListener { saveApartment() }
         })
@@ -193,7 +194,7 @@ class CreateApartmentActivity : AppCompatActivity() {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply { bottomMargin = dp(8) }
-            setCardBackgroundColor(Color.WHITE)
+            setCardBackgroundColor(ContextCompat.getColor(this@CreateApartmentActivity, R.color.card_background))
             cardElevation = 2f
             radius = 8f
         }
@@ -212,7 +213,7 @@ class CreateApartmentActivity : AppCompatActivity() {
             setText(name)
             hint = "Название счётчика"
             textSize = 14f
-            setBackgroundResource(android.R.drawable.edit_text)
+            applyThemeColors()
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply { marginEnd = dp(8) }
         }
         val deleteBtn = Button(this).apply {
@@ -234,14 +235,14 @@ class CreateApartmentActivity : AppCompatActivity() {
         bottomRow.addView(TextView(this).apply {
             text = "Тариф (руб.):"
             textSize = 13f
-            setTextColor(Color.DKGRAY)
+            setTextColor(ContextCompat.getColor(this@CreateApartmentActivity, R.color.text_secondary))
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { marginEnd = dp(8) }
         })
         val tariffInput = EditText(this).apply {
             setText(if (tariff > 0) String.format("%.2f", tariff) else "")
             hint = "0.00"
             inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
-            setBackgroundResource(android.R.drawable.edit_text)
+            applyThemeColors()
             layoutParams = LinearLayout.LayoutParams(dp(90), LinearLayout.LayoutParams.WRAP_CONTENT).apply { marginEnd = dp(16) }
         }
         val isWaterCheckbox = CheckBox(this).apply {
@@ -270,7 +271,7 @@ class CreateApartmentActivity : AppCompatActivity() {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply { bottomMargin = dp(8) }
-            setCardBackgroundColor(Color.WHITE)
+            setCardBackgroundColor(ContextCompat.getColor(this@CreateApartmentActivity, R.color.card_background))
             cardElevation = 2f
             radius = 8f
         }
@@ -284,14 +285,14 @@ class CreateApartmentActivity : AppCompatActivity() {
             setText(name)
             hint = "Мусор, Интернет..."
             textSize = 14f
-            setBackgroundResource(android.R.drawable.edit_text)
+            applyThemeColors()
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply { marginEnd = dp(8) }
         }
         val amountInput = EditText(this).apply {
             setText(if (amount > 0) String.format("%.2f", amount) else "")
             hint = "0.00"
             inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
-            setBackgroundResource(android.R.drawable.edit_text)
+            applyThemeColors()
             layoutParams = LinearLayout.LayoutParams(dp(90), LinearLayout.LayoutParams.WRAP_CONTENT).apply { marginEnd = dp(8) }
         }
         val deleteBtn = Button(this).apply {
@@ -345,13 +346,13 @@ class CreateApartmentActivity : AppCompatActivity() {
                 rowLayout.addView(TextView(this).apply {
                     text = counter.name
                     textSize = 14f
-                    setTextColor(Color.BLACK)
+                    setTextColor(ContextCompat.getColor(this@CreateApartmentActivity, R.color.text_primary))
                     layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
                 })
                 val field = EditText(this).apply {
                     setText(String.format("%.2f", previousData[counter.name] ?: 0.0))
                     inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
-                    setBackgroundResource(android.R.drawable.edit_text)
+                    applyThemeColors()
                     layoutParams = LinearLayout.LayoutParams(dp(100), LinearLayout.LayoutParams.WRAP_CONTENT)
                 }
                 rowLayout.addView(field)
@@ -408,7 +409,7 @@ class CreateApartmentActivity : AppCompatActivity() {
     private fun addSectionTitle(text: String) {
         scrollLayout.addView(TextView(this).apply {
             this.text = text
-            setTextColor(Color.BLACK)
+            setTextColor(ContextCompat.getColor(this@CreateApartmentActivity, R.color.text_primary))
             textSize = 18f
             setTypeface(null, Typeface.BOLD)
             layoutParams = LinearLayout.LayoutParams(
@@ -423,9 +424,9 @@ class CreateApartmentActivity : AppCompatActivity() {
 
     private fun secondaryButton(text: String, onClick: () -> Unit) = MaterialButton(this).apply {
         this.text = text
-        setTextColor(Color.parseColor("#1976D2"))
-        backgroundTintList = ColorStateList.valueOf(Color.WHITE)
-        strokeColor = ColorStateList.valueOf(Color.parseColor("#1976D2"))
+        setTextColor(ContextCompat.getColor(this@CreateApartmentActivity, R.color.btn_secondary_text))
+        backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this@CreateApartmentActivity, R.color.btn_secondary_bg))
+        strokeColor = ColorStateList.valueOf(ContextCompat.getColor(this@CreateApartmentActivity, R.color.btn_secondary_text))
         strokeWidth = dp(1)
         cornerRadius = dp(8)
         textSize = 15f
@@ -437,4 +438,9 @@ class CreateApartmentActivity : AppCompatActivity() {
     }
 
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density + 0.5f).toInt()
+
+    private fun EditText.applyThemeColors() {
+        setTextColor(ContextCompat.getColor(this@CreateApartmentActivity, R.color.text_primary))
+        setHintTextColor(ContextCompat.getColor(this@CreateApartmentActivity, R.color.text_secondary))
+    }
 }

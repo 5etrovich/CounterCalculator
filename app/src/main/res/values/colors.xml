@@ -1,15 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-
-    <!-- Добавьте эти цвета -->
     <color name="light_blue">#FF4FC3F7</color>
-    <color name="light_gray">#FFF8FBFE</color>
+    <color name="light_blue_stroke">#FF0288D1</color>
     <color name="gray">#FF757575</color>
+
+    <color name="background">#FFFFFFFF</color>
+    <color name="card_background">#FFF5F5F5</color>
+    <color name="card_background_alt">#FFF8FBFE</color>
+    <color name="card_stroke">#FFBDBDBD</color>
+    <color name="text_primary">#FF000000</color>
+    <color name="text_secondary">#FF757575</color>
+    <color name="input_disabled_bg">#FFF5F5F5</color>
+    <color name="input_disabled_text">#FF616161</color>
+    <color name="btn_edit_bg">#FFE3F2FD</color>
+    <color name="btn_edit_text">#FF1976D2</color>
+    <color name="btn_delete_bg">#FFFFFFFF</color>
+    <color name="btn_delete_text">#FFD32F2F</color>
+    <color name="btn_secondary_bg">#FFFFFFFF</color>
+    <color name="btn_secondary_text">#FF1976D2</color>
 </resources>

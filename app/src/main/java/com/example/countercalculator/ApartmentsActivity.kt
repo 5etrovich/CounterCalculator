@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.content.res.ColorStateList
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 
@@ -46,7 +47,7 @@ class ApartmentsActivity : AppCompatActivity() {
         if (apartments.isEmpty()) {
             apartmentsContainer.addView(TextView(this).apply {
                 text = "Нет квартир. Нажмите «+ Добавить квартиру»."
-                setTextColor(Color.GRAY)
+                setTextColor(ContextCompat.getColor(this@ApartmentsActivity, R.color.text_secondary))
                 textSize = 16f
                 gravity = android.view.Gravity.CENTER
                 layoutParams = LinearLayout.LayoutParams(
@@ -67,11 +68,11 @@ class ApartmentsActivity : AppCompatActivity() {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply { bottomMargin = dpToPx(12) }
-            setCardBackgroundColor(Color.WHITE)
+            setCardBackgroundColor(ContextCompat.getColor(this@ApartmentsActivity, R.color.card_background))
             cardElevation = 4f
             radius = 12f
             strokeWidth = dpToPx(1)
-            strokeColor = Color.parseColor("#BDBDBD")
+            strokeColor = ContextCompat.getColor(this@ApartmentsActivity, R.color.card_stroke)
 
             val column = LinearLayout(this@ApartmentsActivity).apply {
                 orientation = LinearLayout.VERTICAL
@@ -84,7 +85,7 @@ class ApartmentsActivity : AppCompatActivity() {
 
             column.addView(TextView(this@ApartmentsActivity).apply {
                 text = "🏠 ${config.name}"
-                setTextColor(Color.BLACK)
+                setTextColor(ContextCompat.getColor(this@ApartmentsActivity, R.color.text_primary))
                 textSize = 18f
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
@@ -94,9 +95,9 @@ class ApartmentsActivity : AppCompatActivity() {
 
             column.addView(MaterialButton(this@ApartmentsActivity).apply {
                 text = "Начать расчёт  →"
-                setTextColor(Color.WHITE)
-                backgroundTintList = ColorStateList.valueOf(Color.parseColor("#4FC3F7"))
-                strokeColor = ColorStateList.valueOf(Color.parseColor("#0288D1"))
+                setTextColor(ContextCompat.getColor(this@ApartmentsActivity, R.color.white))
+                backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this@ApartmentsActivity, R.color.light_blue))
+                strokeColor = ColorStateList.valueOf(ContextCompat.getColor(this@ApartmentsActivity, R.color.light_blue_stroke))
                 strokeWidth = dpToPx(2)
                 cornerRadius = dpToPx(10)
                 textSize = 16f
@@ -120,9 +121,9 @@ class ApartmentsActivity : AppCompatActivity() {
 
             secondaryRow.addView(MaterialButton(this@ApartmentsActivity).apply {
                 text = "Изменить"
-                setTextColor(Color.parseColor("#1976D2"))
-                backgroundTintList = ColorStateList.valueOf(Color.WHITE)
-                strokeColor = ColorStateList.valueOf(Color.parseColor("#1976D2"))
+                setTextColor(ContextCompat.getColor(this@ApartmentsActivity, R.color.btn_edit_text))
+                backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this@ApartmentsActivity, R.color.btn_edit_bg))
+                strokeColor = ColorStateList.valueOf(ContextCompat.getColor(this@ApartmentsActivity, R.color.btn_edit_text))
                 strokeWidth = dpToPx(1)
                 cornerRadius = dpToPx(8)
                 textSize = 13f
@@ -138,9 +139,9 @@ class ApartmentsActivity : AppCompatActivity() {
 
             secondaryRow.addView(MaterialButton(this@ApartmentsActivity).apply {
                 text = "Удалить"
-                setTextColor(Color.parseColor("#D32F2F"))
-                backgroundTintList = ColorStateList.valueOf(Color.WHITE)
-                strokeColor = ColorStateList.valueOf(Color.parseColor("#D32F2F"))
+                setTextColor(ContextCompat.getColor(this@ApartmentsActivity, R.color.btn_delete_text))
+                backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this@ApartmentsActivity, R.color.btn_delete_bg))
+                strokeColor = ColorStateList.valueOf(ContextCompat.getColor(this@ApartmentsActivity, R.color.btn_delete_text))
                 strokeWidth = dpToPx(1)
                 cornerRadius = dpToPx(8)
                 textSize = 13f

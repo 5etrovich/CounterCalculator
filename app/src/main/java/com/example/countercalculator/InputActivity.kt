@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.content.res.ColorStateList
 import android.widget.*
+import androidx.core.content.ContextCompat
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 
@@ -43,7 +44,7 @@ class InputActivity : AppCompatActivity() {
 
         val instruction = TextView(this).apply {
             text = "Заполните текущие показания. Предыдущие загружены автоматически.\nМожно использовать точку или запятую как разделитель."
-            setTextColor(Color.GRAY)
+            setTextColor(ContextCompat.getColor(this@InputActivity, R.color.text_secondary))
             textSize = 14f
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -71,9 +72,9 @@ class InputActivity : AppCompatActivity() {
 
         val calculateButton = MaterialButton(this).apply {
             text = "РАССЧИТАТЬ"
-            setTextColor(Color.WHITE)
-            backgroundTintList = ColorStateList.valueOf(Color.parseColor("#4FC3F7"))
-            strokeColor = ColorStateList.valueOf(Color.parseColor("#0288D1"))
+            setTextColor(ContextCompat.getColor(this@InputActivity, R.color.white))
+            backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this@InputActivity, R.color.light_blue))
+            strokeColor = ColorStateList.valueOf(ContextCompat.getColor(this@InputActivity, R.color.light_blue_stroke))
             strokeWidth = dpToPx(2)
             cornerRadius = dpToPx(12)
             textSize = 18f
@@ -99,7 +100,7 @@ class InputActivity : AppCompatActivity() {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply { bottomMargin = 20 }
-            setCardBackgroundColor(Color.WHITE)
+            setCardBackgroundColor(ContextCompat.getColor(this@InputActivity, R.color.card_background))
             cardElevation = 3f
             radius = 8f
 
@@ -114,7 +115,7 @@ class InputActivity : AppCompatActivity() {
 
             val title = TextView(this@InputActivity).apply {
                 text = counterName
-                setTextColor(Color.BLACK)
+                setTextColor(ContextCompat.getColor(this@InputActivity, R.color.text_primary))
                 textSize = 18f
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
@@ -140,14 +141,14 @@ class InputActivity : AppCompatActivity() {
             }
             val prevLabel = TextView(this@InputActivity).apply {
                 text = "Предыдущее (авто)"
-                setTextColor(Color.GRAY)
+                setTextColor(ContextCompat.getColor(this@InputActivity, R.color.text_secondary))
                 textSize = 14f
             }
             val prevInput = EditText(this@InputActivity).apply {
                 setText(String.format("%.2f", previousValue))
                 isEnabled = false
-                setBackgroundColor(Color.parseColor("#F5F5F5"))
-                setTextColor(Color.DKGRAY)
+                setBackgroundColor(ContextCompat.getColor(this@InputActivity, R.color.input_disabled_bg))
+                setTextColor(ContextCompat.getColor(this@InputActivity, R.color.input_disabled_text))
             }
             prevInputLayout.addView(prevLabel)
             prevInputLayout.addView(prevInput)
@@ -161,12 +162,13 @@ class InputActivity : AppCompatActivity() {
             }
             val currLabel = TextView(this@InputActivity).apply {
                 text = "Текущее"
-                setTextColor(Color.GRAY)
+                setTextColor(ContextCompat.getColor(this@InputActivity, R.color.text_secondary))
                 textSize = 14f
             }
             val currInput = EditText(this@InputActivity).apply {
                 hint = "0.0"
-                setBackgroundResource(android.R.drawable.edit_text)
+                setTextColor(ContextCompat.getColor(this@InputActivity, R.color.text_primary))
+                setHintTextColor(ContextCompat.getColor(this@InputActivity, R.color.text_secondary))
                 inputType = android.text.InputType.TYPE_CLASS_NUMBER or
                         android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
             }
