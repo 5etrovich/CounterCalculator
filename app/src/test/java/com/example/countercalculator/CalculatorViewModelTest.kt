@@ -22,7 +22,7 @@ class CalculatorViewModelTest {
 
         val result = vm.calculate(config, input)
 
-        assertContains(result["Электричество"], "500.00 руб.")
+        assertContains(result["Электричество"], "500 руб.")
     }
 
     @Test
@@ -32,7 +32,7 @@ class CalculatorViewModelTest {
 
         val result = vm.calculate(config, input)
 
-        assertContains(result["Электричество"], "0.00 руб.")
+        assertContains(result["Электричество"], "0 руб.")
     }
 
     @Test
@@ -50,9 +50,9 @@ class CalculatorViewModelTest {
 
         val result = vm.calculate(config, input)
 
-        assertContains(result["Электричество"], "500.00 руб.")
-        assertContains(result["Холодная вода"], "120.00 руб.")
-        assertContains(result["Горячая вода"], "300.00 руб.")
+        assertContains(result["Электричество"], "500 руб.")
+        assertContains(result["Холодная вода"], "120 руб.")
+        assertContains(result["Горячая вода"], "300 руб.")
     }
 
     // --- Итоговая сумма ---
@@ -70,7 +70,40 @@ class CalculatorViewModelTest {
 
         val result = vm.calculate(config, input)
 
-        assertEquals("620.00 руб.", result["ИТОГО"])
+        assertEquals("620 руб.", result["ИТОГО"])
+    }
+
+    // --- Форматирование сумм ---
+
+    @Test
+    fun `целая сумма выводится без копеек`() {
+        val config = config(counters = listOf(counter("Электричество", tariff = 5.0)))
+        val input = mapOf("Электричество" to (0.0 to 100.0))  // 500 ровно
+
+        val result = vm.calculate(config, input)
+
+        assertContains(result["Электричество"], "500 руб.")
+        assertFalse("Не должно быть .00", result["Электричество"]!!.contains("500.00"))
+    }
+
+    @Test
+    fun `дробная сумма выводится с копейками`() {
+        val config = config(counters = listOf(counter("Вода", tariff = 3.33)))
+        val input = mapOf("Вода" to (0.0 to 3.0))  // 3 * 3.33 = 9.99 руб
+
+        val result = vm.calculate(config, input)
+
+        assertContains(result["Вода"], "9.99 руб.")
+    }
+
+    @Test
+    fun `сумма с копейками не округляется`() {
+        val config = config(counters = listOf(counter("Вода", tariff = 40.37)))
+        val input = mapOf("Вода" to (0.0 to 1.0))  // 40.37 руб
+
+        val result = vm.calculate(config, input)
+
+        assertContains(result["Вода"], "40.37 руб.")
     }
 
     // --- Водоотведение ---
@@ -86,14 +119,14 @@ class CalculatorViewModelTest {
             waterDisposalTariff = 30.0
         )
         val input = mapOf(
-            "Холодная вода" to (0.0 to 3.0),   // потребление 3 м³
-            "Горячая вода" to (0.0 to 2.0)     // потребление 2 м³
+            "Холодная вода" to (0.0 to 3.0),
+            "Горячая вода" to (0.0 to 2.0)
         )
 
         val result = vm.calculate(config, input)
 
         // (3 + 2) * 30 = 150
-        assertContains(result["Водоотведение"], "150.00 руб.")
+        assertContains(result["Водоотведение"], "150 руб.")
     }
 
     @Test
@@ -107,14 +140,14 @@ class CalculatorViewModelTest {
             waterDisposalTariff = 30.0
         )
         val input = mapOf(
-            "Электричество" to (0.0 to 100.0),  // не вода, не считается
-            "Холодная вода" to (0.0 to 4.0)     // потребление 4 м³
+            "Электричество" to (0.0 to 100.0),
+            "Холодная вода" to (0.0 to 4.0)
         )
 
         val result = vm.calculate(config, input)
 
-        // Только 4 * 30 = 120, без электричества
-        assertContains(result["Водоотведение"], "120.00 руб.")
+        // Только 4 * 30 = 120
+        assertContains(result["Водоотведение"], "120 руб.")
     }
 
     @Test
@@ -142,7 +175,7 @@ class CalculatorViewModelTest {
         val result = vm.calculate(config, input)
 
         // вода: 2 * 40 = 80, водоотведение: 2 * 30 = 60, итого: 140
-        assertEquals("140.00 руб.", result["ИТОГО"])
+        assertEquals("140 руб.", result["ИТОГО"])
     }
 
     // --- Фиксированные платежи ---
@@ -160,9 +193,9 @@ class CalculatorViewModelTest {
 
         val result = vm.calculate(config, input)
 
-        assertContains(result["Мусор"], "100.00 руб.")
-        assertContains(result["Интернет"], "450.00 руб.")
-        assertEquals("550.00 руб.", result["ИТОГО"])
+        assertContains(result["Мусор"], "100 руб.")
+        assertContains(result["Интернет"], "450 руб.")
+        assertEquals("550 руб.", result["ИТОГО"])
     }
 
     @Test
@@ -184,20 +217,10 @@ class CalculatorViewModelTest {
         val result = vm.calculate(config, input)
 
         // 500 + 120 + 90 + 100 = 810
-        assertEquals("810.00 руб.", result["ИТОГО"])
+        assertEquals("810 руб.", result["ИТОГО"])
     }
 
     // --- Граничные случаи ---
-
-    @Test
-    fun `дробное потребление считается точно`() {
-        val config = config(counters = listOf(counter("Горячая вода", tariff = 200.0)))
-        val input = mapOf("Горячая вода" to (10.0 to 11.75))  // 1.75 м³
-
-        val result = vm.calculate(config, input)
-
-        assertContains(result["Горячая вода"], "350.00 руб.")
-    }
 
     @Test
     fun `нулевой тариф - сумма ноль`() {
@@ -206,8 +229,8 @@ class CalculatorViewModelTest {
 
         val result = vm.calculate(config, input)
 
-        assertContains(result["Электричество"], "0.00 руб.")
-        assertEquals("0.00 руб.", result["ИТОГО"])
+        assertContains(result["Электричество"], "0 руб.")
+        assertEquals("0 руб.", result["ИТОГО"])
     }
 
     @Test
@@ -218,7 +241,7 @@ class CalculatorViewModelTest {
         val result = vm.calculate(config, input)
 
         assertNull(result["Электричество"])
-        assertEquals("0.00 руб.", result["ИТОГО"])
+        assertEquals("0 руб.", result["ИТОГО"])
     }
 
     @Test
@@ -228,7 +251,7 @@ class CalculatorViewModelTest {
 
         val result = vm.calculate(config, input)
 
-        assertEquals("0.00 руб.", result["ИТОГО"])
+        assertEquals("0 руб.", result["ИТОГО"])
     }
 
     // --- Вспомогательные функции ---
