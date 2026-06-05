@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:fitsSystemWindows="true"
     android:background="@color/background">
 
     <com.google.android.material.appbar.MaterialToolbar
@@ -11,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/light_blue"
-        android:paddingTop="20dp"
+        
         app:titleTextColor="@color/white"
         app:navigationIcon="?android:attr/homeAsUpIndicator" />
 
@@ -26,6 +27,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+    android:fitsSystemWindows="true"
             android:paddingBottom="40dp" />
 
     </ScrollView>

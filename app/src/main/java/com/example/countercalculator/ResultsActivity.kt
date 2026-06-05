@@ -43,6 +43,7 @@ class ResultsActivity : AppCompatActivity() {
         }
 
         val results = CalculatorViewModel().calculate(config, inputData)
+        saveToHistory(config, inputData, results)
 
         layout.addView(TextView(this).apply {
             text = "Детализация расчета"
@@ -149,7 +150,9 @@ class ResultsActivity : AppCompatActivity() {
             )
             setOnClickListener {
                 VibrationHelper.vibrate(this@ResultsActivity)
-                startActivity(Intent(this@ResultsActivity, ApartmentsActivity::class.java))
+                val intent = Intent(this@ResultsActivity, ApartmentsActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                startActivity(intent)
             }
         })
         layout.addView(buttonContainer)
@@ -243,6 +246,38 @@ class ResultsActivity : AppCompatActivity() {
             })
             addView(row)
         }
+    }
+
+    private fun saveToHistory(
+        config: ApartmentConfig,
+        inputData: Map<String, Pair<Double, Double>>,
+        results: Map<String, String>
+    ) {
+        val details = mutableListOf<HistoryDetail>()
+        config.counters.forEach { counter ->
+            results[counter.name]?.let { resultStr ->
+                val (prev, curr) = inputData[counter.name] ?: (0.0 to 0.0)
+                details.add(HistoryDetail(counter.name, resultStr, "%.2f → %.2f".format(prev, curr)))
+            }
+        }
+        if (config.hasWaterDisposal) {
+            results["Водоотведение"]?.let {
+                details.add(HistoryDetail("Водоотведение", it))
+            }
+        }
+        config.fixedPayments.forEach { payment ->
+            results[payment.name]?.let { details.add(HistoryDetail(payment.name, it)) }
+        }
+
+        val sdf = java.text.SimpleDateFormat("dd.MM.yyyy HH:mm", java.util.Locale.getDefault())
+        val record = HistoryRecord(
+            id = System.currentTimeMillis(),
+            apartmentName = config.name,
+            date = sdf.format(java.util.Date()),
+            total = results["ИТОГО"] ?: "0.00 руб.",
+            details = details
+        )
+        DataStorage(this).saveHistoryRecord(record)
     }
 
     private fun buildShareText(config: ApartmentConfig, results: Map<String, String>): String {

@@ -10,10 +10,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val btnStart = findViewById<Button>(R.id.btnStart)
-        btnStart.setOnClickListener {
+        findViewById<Button>(R.id.btnStart).setOnClickListener {
             VibrationHelper.vibrate(this)
             startActivity(Intent(this, ApartmentsActivity::class.java))
+        }
+
+        findViewById<Button>(R.id.btnHistory).setOnClickListener {
+            VibrationHelper.vibrate(this)
+            startActivity(Intent(this, HistoryActivity::class.java))
         }
     }
 }

@@ -37,8 +37,22 @@ class ApartmentsActivity : AppCompatActivity() {
 
     private fun setupToolbar() {
         val toolbar = findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
-        toolbar.title = "Мои квартиры"
-        toolbar.setNavigationOnClickListener { finish() }
+        toolbar.title = "Мои счётчики"
+        toolbar.navigationIcon = null
+        toolbar.inflateMenu(R.menu.menu_apartments)
+        val historyBtn = toolbar.menu.findItem(R.id.action_history)
+            ?.actionView?.findViewById<android.view.View>(R.id.btn_history)
+        historyBtn?.setOnClickListener {
+            VibrationHelper.vibrate(this)
+            startActivity(Intent(this, HistoryActivity::class.java))
+        }
+        toolbar.setOnMenuItemClickListener { item ->
+            if (item.itemId == R.id.action_history) {
+                VibrationHelper.vibrate(this)
+                startActivity(Intent(this, HistoryActivity::class.java))
+                true
+            } else false
+        }
     }
 
     private fun loadApartments() {

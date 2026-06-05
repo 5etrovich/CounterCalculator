@@ -59,4 +59,27 @@ class DataStorage(private val context: Context) {
         val type = object : TypeToken<Map<String, Double>>() {}.type
         return gson.fromJson(json, type) ?: emptyMap()
     }
+
+    fun saveHistoryRecord(record: HistoryRecord) {
+        val records = loadHistory().toMutableList()
+        records.add(0, record)
+        if (records.size > 100) records.removeAt(records.size - 1)
+        sharedPref.edit().putString("history", gson.toJson(records)).commit()
+    }
+
+    fun loadHistory(): List<HistoryRecord> {
+        val json = sharedPref.getString("history", null) ?: return emptyList()
+        val type = object : TypeToken<List<HistoryRecord>>() {}.type
+        return gson.fromJson(json, type) ?: emptyList()
+    }
+
+    fun deleteHistoryRecord(id: Long) {
+        val records = loadHistory().toMutableList()
+        records.removeAll { it.id == id }
+        sharedPref.edit().putString("history", gson.toJson(records)).commit()
+    }
+
+    fun clearHistory() {
+        sharedPref.edit().remove("history").commit()
+    }
 }

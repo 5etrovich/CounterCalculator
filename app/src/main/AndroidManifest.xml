@@ -17,6 +17,9 @@
             android:name=".CreateApartmentActivity"
             android:exported="false" />
         <activity
+            android:name=".HistoryActivity"
+            android:exported="false" />
+        <activity
             android:name=".ResultsActivity"
             android:exported="false" />
         <activity
@@ -25,15 +28,15 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ApartmentsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
