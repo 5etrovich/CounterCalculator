@@ -1,9 +1,9 @@
 package com.example.countercalculator
 
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
-import android.content.res.ColorStateList
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -57,7 +57,11 @@ class ResultsActivity : AppCompatActivity() {
         // Счётчики
         layout.addView(sectionTitle("Показания счетчиков:"))
         config.counters.forEach { counter ->
-            results[counter.name]?.let { layout.addView(createResultCard(counter.name, it)) }
+            results[counter.name]?.let { resultStr ->
+                val (prev, curr) = inputData[counter.name] ?: (0.0 to 0.0)
+                val subtitle = "%.2f → %.2f".format(prev, curr)
+                layout.addView(createResultCard(counter.name, resultStr, subtitle))
+            }
         }
 
         // Водоотведение
@@ -72,7 +76,19 @@ class ResultsActivity : AppCompatActivity() {
                     LinearLayout.LayoutParams.WRAP_CONTENT
                 ).apply { bottomMargin = 12 }
             })
-            results["Водоотведение"]?.let { layout.addView(createResultCard("Водоотведение", it)) }
+            results["Водоотведение"]?.let {
+                val waterConsumptions = config.counters
+                    .filter { c -> c.isWater }
+                    .mapNotNull { c -> inputData[c.name]?.let { (prev, curr) -> curr - prev } }
+                val waterSubtitle = if (waterConsumptions.size > 1) {
+                    waterConsumptions.joinToString(" + ") { "%.2f".format(it) } +
+                    " = %.2f м³".format(waterConsumptions.sum())
+                } else {
+                    "%.2f м³".format(waterConsumptions.sum())
+                }
+                layout.addView(createResultCard("Водоотведение", it, waterSubtitle))
+            }
+
         }
 
         // Фиксированные платежи
@@ -81,10 +97,12 @@ class ResultsActivity : AppCompatActivity() {
             config.fixedPayments.forEach { payment ->
                 results[payment.name]?.let { layout.addView(createResultCard(payment.name, it)) }
             }
+
         }
 
         layout.addView(createTotalCard(results["ИТОГО"] ?: "0.00 руб."))
 
+        val shareText = buildShareText(config, results)
         val buttonContainer = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = android.view.Gravity.CENTER_HORIZONTAL
@@ -96,6 +114,27 @@ class ResultsActivity : AppCompatActivity() {
                 bottomMargin = dpToPx(300)
             }
         }
+        buttonContainer.addView(MaterialButton(this).apply {
+            text = "Поделиться результатами"
+            setTextColor(ContextCompat.getColor(this@ResultsActivity, R.color.btn_secondary_text))
+            backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this@ResultsActivity, R.color.btn_secondary_bg))
+            strokeColor = ColorStateList.valueOf(ContextCompat.getColor(this@ResultsActivity, R.color.btn_secondary_text))
+            strokeWidth = dpToPx(1)
+            cornerRadius = dpToPx(12)
+            textSize = 16f
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                dpToPx(56)
+            ).apply { bottomMargin = dpToPx(12) }
+            setOnClickListener {
+                VibrationHelper.vibrate(this@ResultsActivity)
+                val intent = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, shareText)
+                }
+                startActivity(Intent.createChooser(intent, "Поделиться расчётом"))
+            }
+        })
         buttonContainer.addView(MaterialButton(this).apply {
             text = "Вернуться на главную"
             setTextColor(ContextCompat.getColor(this@ResultsActivity, R.color.white))
@@ -109,6 +148,7 @@ class ResultsActivity : AppCompatActivity() {
                 dpToPx(64)
             )
             setOnClickListener {
+                VibrationHelper.vibrate(this@ResultsActivity)
                 startActivity(Intent(this@ResultsActivity, ApartmentsActivity::class.java))
             }
         })
@@ -128,7 +168,7 @@ class ResultsActivity : AppCompatActivity() {
         }
     }
 
-    private fun createResultCard(title: String, value: String): MaterialCardView {
+    private fun createResultCard(title: String, value: String, subtitle: String? = null): MaterialCardView {
         return MaterialCardView(this).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -138,23 +178,40 @@ class ResultsActivity : AppCompatActivity() {
             cardElevation = 2f
             radius = 8f
 
-            val row = LinearLayout(this@ResultsActivity).apply {
-                orientation = LinearLayout.HORIZONTAL
-                setPadding(25, 20, 25, 20)
+            val col = LinearLayout(this@ResultsActivity).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(25, 16, 25, 16)
             }
-            row.addView(TextView(this@ResultsActivity).apply {
+
+            col.addView(TextView(this@ResultsActivity).apply {
                 text = title
                 setTextColor(ContextCompat.getColor(this@ResultsActivity, R.color.text_primary))
                 textSize = 16f
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.6f)
             })
-            row.addView(TextView(this@ResultsActivity).apply {
+
+            if (subtitle != null) {
+                col.addView(TextView(this@ResultsActivity).apply {
+                    text = subtitle
+                    setTextColor(ContextCompat.getColor(this@ResultsActivity, R.color.text_secondary))
+                    textSize = 13f
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply { topMargin = 2 }
+                })
+            }
+
+            col.addView(TextView(this@ResultsActivity).apply {
                 text = value
                 setTextColor(ContextCompat.getColor(this@ResultsActivity, R.color.text_secondary))
-                textSize = 16f
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.4f)
+                textSize = 15f
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply { topMargin = 4 }
             })
-            addView(row)
+
+            addView(col)
         }
     }
 
@@ -186,6 +243,46 @@ class ResultsActivity : AppCompatActivity() {
             })
             addView(row)
         }
+    }
+
+    private fun buildShareText(config: ApartmentConfig, results: Map<String, String>): String {
+        val inputData = AppData.inputData
+        val sb = StringBuilder()
+        sb.appendLine("📊 Коммунальные платежи — ${config.name}")
+        sb.appendLine()
+        config.counters.forEach { counter ->
+            results[counter.name]?.let { resultStr ->
+                val (prev, curr) = inputData[counter.name] ?: (0.0 to 0.0)
+                sb.appendLine("${counter.name}:")
+                sb.appendLine("  %.2f → %.2f".format(prev, curr))
+                sb.appendLine("  $resultStr")
+            }
+        }
+        if (config.hasWaterDisposal) {
+            results["Водоотведение"]?.let { resultStr ->
+                val waterConsumptions = config.counters
+                    .filter { it.isWater }
+                    .mapNotNull { c -> inputData[c.name]?.let { (prev, curr) -> curr - prev } }
+                val waterLine = if (waterConsumptions.size > 1) {
+                    waterConsumptions.joinToString(" + ") { "%.2f".format(it) } +
+                    " = %.2f м³".format(waterConsumptions.sum())
+                } else {
+                    "%.2f м³".format(waterConsumptions.sum())
+                }
+                sb.appendLine("Водоотведение:")
+                sb.appendLine("  $waterLine")
+                sb.appendLine("  $resultStr")
+            }
+        }
+        if (config.fixedPayments.isNotEmpty()) {
+            sb.appendLine()
+            config.fixedPayments.forEach { payment ->
+                results[payment.name]?.let { sb.appendLine("${payment.name}: $it") }
+            }
+        }
+        sb.appendLine()
+        sb.append("ИТОГО: ${results["ИТОГО"] ?: "0.00 руб."}")
+        return sb.toString()
     }
 
     private fun dpToPx(dp: Int): Int {

@@ -83,6 +83,7 @@ class InputActivity : AppCompatActivity() {
                 dpToPx(64)
             )
             setOnClickListener {
+                VibrationHelper.vibrate(this@InputActivity)
                 if (collectInputData()) {
                     saveCurrentDataAsPrevious(config.id)
                     startActivity(Intent(this@InputActivity, ResultsActivity::class.java))

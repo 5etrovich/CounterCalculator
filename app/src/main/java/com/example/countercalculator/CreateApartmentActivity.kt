@@ -184,7 +184,10 @@ class CreateApartmentActivity : AppCompatActivity() {
                 topMargin = dp(32)
                 bottomMargin = dp(300)
             }
-            setOnClickListener { saveApartment() }
+            setOnClickListener {
+                VibrationHelper.vibrate(this@CreateApartmentActivity)
+                saveApartment()
+            }
         })
     }
 

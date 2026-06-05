@@ -12,8 +12,8 @@ class MainActivity : AppCompatActivity() {
 
         val btnStart = findViewById<Button>(R.id.btnStart)
         btnStart.setOnClickListener {
-            val intent = Intent(this, ApartmentsActivity::class.java)
-            startActivity(intent)
+            VibrationHelper.vibrate(this)
+            startActivity(Intent(this, ApartmentsActivity::class.java))
         }
     }
 }

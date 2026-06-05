@@ -25,6 +25,7 @@ class ApartmentsActivity : AppCompatActivity() {
         apartmentsContainer = findViewById(R.id.apartments_container)
 
         findViewById<Button>(R.id.btnAddApartment).setOnClickListener {
+            VibrationHelper.vibrate(this)
             startActivity(Intent(this, CreateApartmentActivity::class.java))
         }
     }
@@ -106,6 +107,7 @@ class ApartmentsActivity : AppCompatActivity() {
                     dpToPx(56)
                 ).apply { bottomMargin = dpToPx(10) }
                 setOnClickListener {
+                    VibrationHelper.vibrate(this@ApartmentsActivity)
                     AppData.currentApartmentConfig = config
                     startActivity(Intent(this@ApartmentsActivity, InputActivity::class.java))
                 }
@@ -131,6 +133,7 @@ class ApartmentsActivity : AppCompatActivity() {
                     marginEnd = dpToPx(8)
                 }
                 setOnClickListener {
+                    VibrationHelper.vibrate(this@ApartmentsActivity)
                     val intent = Intent(this@ApartmentsActivity, CreateApartmentActivity::class.java)
                     intent.putExtra("apartment_id", config.id)
                     startActivity(intent)
@@ -147,6 +150,7 @@ class ApartmentsActivity : AppCompatActivity() {
                 textSize = 13f
                 layoutParams = LinearLayout.LayoutParams(0, dpToPx(40), 1f)
                 setOnClickListener {
+                    VibrationHelper.vibrate(this@ApartmentsActivity)
                     AlertDialog.Builder(this@ApartmentsActivity)
                         .setTitle("Удалить квартиру?")
                         .setMessage("«${config.name}» будет удалена вместе со всеми данными.")
