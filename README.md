@@ -25,7 +25,11 @@
 ## Установка
 
 ### Скачать APK
-Перейдите в раздел [Releases](https://github.com/5etrovich/CounterCalculator/releases) и скачайте последний `app-release.apk`.
+**[⬇ Скачать app-release.apk](https://github.com/5etrovich/CounterCalculator/releases/latest/download/app-release.apk)**
+
+Или перейдите в раздел [Releases](https://github.com/5etrovich/CounterCalculator/releases) и скачайте последний `app-release.apk`.
+
+> После скачивания разрешите установку из неизвестных источников: **Настройки → Безопасность → Установка из неизвестных источников**.
 
 ### Собрать самостоятельно
 ```bash
