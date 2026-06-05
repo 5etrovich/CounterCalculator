@@ -96,7 +96,7 @@ class ResultsActivity : AppCompatActivity() {
             }
         }
         buttonContainer.addView(MaterialButton(this).apply {
-            text = "НОВЫЙ РАСЧЕТ"
+            text = "Вернуться на главную"
             setTextColor(Color.WHITE)
             backgroundTintList = ColorStateList.valueOf(Color.parseColor("#4FC3F7"))
             strokeColor = ColorStateList.valueOf(Color.parseColor("#0288D1"))
