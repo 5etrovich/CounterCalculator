@@ -1,116 +1,48 @@
 package com.example.countercalculator
 
-import android.content.Context
-
 class CalculatorViewModel {
 
-    fun calculateApartment1(inputs: Map<String, Pair<Double, Double>>, context: Context): Map<String, String> {
-        val dataStorage = DataStorage(context)
-        val tariffs = dataStorage.loadTariffs(1)
-        val fixedPayments = dataStorage.loadFixedPayments(1)
-
-        return calculateForApartment(inputs, tariffs, fixedPayments, 1)
+    private fun formatRub(value: Double): String {
+        return if (value == kotlin.math.floor(value)) {
+            "${value.toLong()} руб."
+        } else {
+            "${String.format("%.2f", value)} руб."
+        }
     }
 
-    fun calculateApartment2(inputs: Map<String, Pair<Double, Double>>, context: Context): Map<String, String> {
-        val dataStorage = DataStorage(context)
-        val tariffs = dataStorage.loadTariffs(2)
-        val fixedPayments = dataStorage.loadFixedPayments(2)
-
-        return calculateForApartment(inputs, tariffs, fixedPayments, 2)
-    }
-
-    fun calculateApartment3(inputs: Map<String, Pair<Double, Double>>, context: Context): Map<String, String> {
-        val dataStorage = DataStorage(context)
-        val tariffs = dataStorage.loadTariffs(3)
-        val fixedPayments = dataStorage.loadFixedPayments(3)
-
-        return calculateForApartment(inputs, tariffs, fixedPayments, 3)
-    }
-
-    private fun calculateForApartment(
-        inputs: Map<String, Pair<Double, Double>>,
-        tariffs: Map<String, Double>,
-        fixedPayments: Map<String, Double>,
-        apartmentId: Int
+    fun calculate(
+        config: ApartmentConfig,
+        inputs: Map<String, Pair<Double, Double>>
     ): Map<String, String> {
         val results = mutableMapOf<String, String>()
         var total = 0.0
 
-        // Расчет по счетчикам в правильном порядке
-        val countersInOrder = when (apartmentId) {
-            1 -> listOf("Электричество 1", "Электричество 2", "Электричество 3", "Холодная вода", "Горячая вода")
-            2 -> listOf("Электричество 1", "Электричество 2", "Холодная вода", "Горячая вода")
-            3 -> listOf("Электричество 1", "Электричество 2", "Холодная вода 1", "Холодная вода 2", "Горячая вода 1", "Горячая вода 2")
-            else -> emptyList()
-        }
-
-        countersInOrder.forEach { counterName ->
-            inputs[counterName]?.let { data ->
-                val tariff = tariffs[counterName] ?: 0.0
-                val consumption = data.second - data.first
-                val amount = consumption * tariff
-                results[counterName] = "${String.format("%.2f", consumption)} × ${String.format("%.2f", tariff)} = ${String.format("%.2f", amount)} руб."
+        config.counters.forEach { counter ->
+            inputs[counter.name]?.let { (prev, curr) ->
+                val consumption = curr - prev
+                val amount = consumption * counter.tariff
+                results[counter.name] = "${String.format("%.2f", consumption)} × ${String.format("%.2f", counter.tariff)} = ${formatRub(amount)}"
                 total += amount
             }
         }
 
-        // Водоотведение (автоматически)
-        val waterAmount = calculateWaterDisposal(inputs, apartmentId, tariffs["Водоотведение"] ?: 0.0)
-        if (waterAmount > 0) {
-            results["Водоотведение"] = "${String.format("%.2f", waterAmount)} руб. (авто)"
-            total += waterAmount
-        }
-
-        // Фиксированные платежи в правильном порядке
-        if (fixedPayments.containsKey("Мусор")) {
-            val amount = fixedPayments["Мусор"] ?: 0.0
-            results["Мусор"] = "${String.format("%.2f", amount)} руб."
+        if (config.hasWaterDisposal) {
+            val totalWater = config.counters
+                .filter { it.isWater }
+                .sumOf { counter ->
+                    inputs[counter.name]?.let { (prev, curr) -> curr - prev } ?: 0.0
+                }
+            val amount = totalWater * config.waterDisposalTariff
+            results["Водоотведение"] = "${String.format("%.2f", totalWater)} × ${String.format("%.2f", config.waterDisposalTariff)} = ${formatRub(amount)}"
             total += amount
         }
 
-        if (fixedPayments.containsKey("Интернет")) {
-            val amount = fixedPayments["Интернет"] ?: 0.0
-            results["Интернет"] = "${String.format("%.2f", amount)} руб."
-            total += amount
+        config.fixedPayments.forEach { payment ->
+            results[payment.name] = formatRub(payment.amount)
+            total += payment.amount
         }
 
-        results["ИТОГО"] = String.format("%.2f руб.", total)
+        results["ИТОГО"] = formatRub(total)
         return results
-    }
-
-    private fun calculateWaterDisposal(inputs: Map<String, Pair<Double, Double>>, apartmentId: Int, tariff: Double): Double {
-        return when (apartmentId) {
-            1 -> {
-                val coldWater = inputs["Холодная вода"]
-                val hotWater = inputs["Горячая вода"]
-                if (coldWater != null && hotWater != null) {
-                    val totalWater = (coldWater.second - coldWater.first) + (hotWater.second - hotWater.first)
-                    totalWater * tariff
-                } else 0.0
-            }
-            2 -> {
-                val coldWater = inputs["Холодная вода"]
-                val hotWater = inputs["Горячая вода"]
-                if (coldWater != null && hotWater != null) {
-                    val totalWater = (coldWater.second - coldWater.first) + (hotWater.second - hotWater.first)
-                    totalWater * tariff
-                } else 0.0
-            }
-            3 -> {
-                val coldWater1 = inputs["Холодная вода 1"]
-                val coldWater2 = inputs["Холодная вода 2"]
-                val hotWater1 = inputs["Горячая вода 1"]
-                val hotWater2 = inputs["Горячая вода 2"]
-                if (coldWater1 != null && coldWater2 != null && hotWater1 != null && hotWater2 != null) {
-                    val totalWater = (coldWater1.second - coldWater1.first) +
-                            (coldWater2.second - coldWater2.first) +
-                            (hotWater1.second - hotWater1.first) +
-                            (hotWater2.second - hotWater2.first)
-                    totalWater * tariff
-                } else 0.0
-            }
-            else -> 0.0
-        }
     }
 }

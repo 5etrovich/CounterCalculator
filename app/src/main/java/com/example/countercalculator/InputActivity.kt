@@ -141,7 +141,7 @@ class InputActivity : AppCompatActivity() {
                 }
             }
             val prevLabel = TextView(this@InputActivity).apply {
-                text = "Предыдущее (авто)"
+                text = "Предыдущие показания"
                 setTextColor(ContextCompat.getColor(this@InputActivity, R.color.text_secondary))
                 textSize = 14f
             }
@@ -162,7 +162,7 @@ class InputActivity : AppCompatActivity() {
                 }
             }
             val currLabel = TextView(this@InputActivity).apply {
-                text = "Текущее"
+                text = "Текущие показания"
                 setTextColor(ContextCompat.getColor(this@InputActivity, R.color.text_secondary))
                 textSize = 14f
             }

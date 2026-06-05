@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.content.res.ColorStateList
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.google.android.material.button.MaterialButton
@@ -395,18 +396,21 @@ class CreateApartmentActivity : AppCompatActivity() {
             FixedPaymentConfig(paymentName, amount)
         }
 
-        val id = if (editingApartmentId == -1) dataStorage.getNextApartmentId() else editingApartmentId
-        dataStorage.saveApartmentConfig(ApartmentConfig(id, name, counters, fixedPayments, waterTariff, hasWaterDisposal))
-
-        if (previousReadingFields.isNotEmpty()) {
-            val readings = previousReadingFields.mapValues { (_, field) ->
-                field.text.toString().trim().replace(',', '.').toDoubleOrNull() ?: 0.0
-            }
-            dataStorage.saveApartmentData(id, readings)
+        val zeroTariffs = counters.filter { it.tariff == 0.0 }.map { it.name }
+        if (zeroTariffs.isNotEmpty()) {
+            val list = zeroTariffs.joinToString("\n") { "• $it" }
+            AlertDialog.Builder(this)
+                .setTitle("Тариф не указан")
+                .setMessage("Вы не указали тариф для:\n$list\n\nРасчёт для этих счётчиков будет равен 0 руб.")
+                .setNegativeButton("Вернуться", null)
+                .setPositiveButton("Продолжить") { _, _ ->
+                    doSave(name, counters, fixedPayments, waterTariff, hasWaterDisposal)
+                }
+                .show()
+            return
         }
 
-        Toast.makeText(this, "Квартира сохранена!", Toast.LENGTH_SHORT).show()
-        finish()
+        doSave(name, counters, fixedPayments, waterTariff, hasWaterDisposal)
     }
 
     private fun addSectionTitle(text: String) {
@@ -423,6 +427,25 @@ class CreateApartmentActivity : AppCompatActivity() {
                 bottomMargin = dp(12)
             }
         })
+    }
+
+    private fun doSave(
+        name: String,
+        counters: List<CounterConfig>,
+        fixedPayments: List<FixedPaymentConfig>,
+        waterTariff: Double,
+        hasWaterDisposal: Boolean
+    ) {
+        val id = if (editingApartmentId == -1) dataStorage.getNextApartmentId() else editingApartmentId
+        dataStorage.saveApartmentConfig(ApartmentConfig(id, name, counters, fixedPayments, waterTariff, hasWaterDisposal))
+        if (previousReadingFields.isNotEmpty()) {
+            val readings = previousReadingFields.mapValues { (_, field) ->
+                field.text.toString().trim().replace(',', '.').toDoubleOrNull() ?: 0.0
+            }
+            dataStorage.saveApartmentData(id, readings)
+        }
+        Toast.makeText(this, "Квартира сохранена!", Toast.LENGTH_SHORT).show()
+        finish()
     }
 
     private fun secondaryButton(text: String, onClick: () -> Unit) = MaterialButton(this).apply {
