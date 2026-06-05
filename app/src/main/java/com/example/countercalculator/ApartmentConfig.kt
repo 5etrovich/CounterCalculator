@@ -3,7 +3,8 @@ package com.example.countercalculator
 data class CounterConfig(
     val name: String,
     val tariff: Double,
-    val isWater: Boolean = false
+    val isWater: Boolean = false,
+    val icon: String? = "📊"
 )
 
 data class FixedPaymentConfig(

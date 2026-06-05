@@ -17,6 +17,20 @@
         app:navigationIcon="?android:attr/homeAsUpIndicator"
         />
 
+    <EditText
+        android:id="@+id/search_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="4dp"
+        android:hint="Поиск по квартире или дате..."
+        android:textSize="16sp"
+        android:inputType="text"
+        android:imeOptions="actionSearch"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="10dp" />
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"

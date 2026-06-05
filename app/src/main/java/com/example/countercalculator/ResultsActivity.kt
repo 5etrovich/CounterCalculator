@@ -61,7 +61,8 @@ class ResultsActivity : AppCompatActivity() {
             results[counter.name]?.let { resultStr ->
                 val (prev, curr) = inputData[counter.name] ?: (0.0 to 0.0)
                 val subtitle = "%.2f → %.2f".format(prev, curr)
-                layout.addView(createResultCard(counter.name, resultStr, subtitle))
+                val displayName = if (!counter.icon.isNullOrEmpty()) "${counter.icon} ${counter.name}" else counter.name
+                layout.addView(createResultCard(displayName, resultStr, subtitle))
             }
         }
 

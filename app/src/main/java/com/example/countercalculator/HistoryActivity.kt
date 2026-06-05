@@ -2,6 +2,8 @@ package com.example.countercalculator
 
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -13,6 +15,8 @@ class HistoryActivity : AppCompatActivity() {
 
     private lateinit var dataStorage: DataStorage
     private lateinit var container: LinearLayout
+    private lateinit var searchInput: EditText
+    private var allRecords: List<HistoryRecord> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,6 +24,16 @@ class HistoryActivity : AppCompatActivity() {
         dataStorage = DataStorage(this)
         setupToolbar()
         container = findViewById(R.id.history_container)
+        searchInput = findViewById(R.id.search_input)
+        searchInput.setTextColor(ContextCompat.getColor(this, R.color.text_primary))
+        searchInput.setHintTextColor(ContextCompat.getColor(this, R.color.text_secondary))
+        searchInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                filterRecords(s?.toString() ?: "")
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
         loadHistory()
     }
 
@@ -35,7 +49,9 @@ class HistoryActivity : AppCompatActivity() {
                     .setMessage("Все записи будут удалены.")
                     .setPositiveButton("Очистить") { _, _ ->
                         dataStorage.clearHistory()
-                        loadHistory()
+                        allRecords = emptyList()
+                        filterRecords("")
+                        searchInput.setText("")
                     }
                     .setNegativeButton("Отмена", null)
                     .show()
@@ -45,12 +61,22 @@ class HistoryActivity : AppCompatActivity() {
     }
 
     private fun loadHistory() {
-        container.removeAllViews()
-        val records = dataStorage.loadHistory()
+        allRecords = dataStorage.loadHistory()
+        filterRecords(searchInput.text.toString())
+    }
 
-        if (records.isEmpty()) {
+    private fun filterRecords(query: String) {
+        container.removeAllViews()
+        val filtered = if (query.isBlank()) allRecords
+        else allRecords.filter {
+            it.apartmentName.contains(query, ignoreCase = true) ||
+            it.date.contains(query, ignoreCase = true)
+        }
+
+        if (filtered.isEmpty()) {
             container.addView(TextView(this).apply {
-                text = "История пуста. Сделайте первый расчёт!"
+                text = if (query.isBlank()) "История пуста. Сделайте первый расчёт!"
+                       else "Ничего не найдено по запросу «$query»"
                 setTextColor(ContextCompat.getColor(this@HistoryActivity, R.color.text_secondary))
                 textSize = 16f
                 gravity = android.view.Gravity.CENTER
@@ -62,7 +88,7 @@ class HistoryActivity : AppCompatActivity() {
             return
         }
 
-        records.forEach { record -> container.addView(createRecordCard(record)) }
+        filtered.forEach { record -> container.addView(createRecordCard(record)) }
     }
 
     private fun createRecordCard(record: HistoryRecord): MaterialCardView {
@@ -186,7 +212,8 @@ class HistoryActivity : AppCompatActivity() {
                         .setMessage("Запись от ${record.date} будет удалена.")
                         .setPositiveButton("Удалить") { _, _ ->
                             dataStorage.deleteHistoryRecord(record.id)
-                            loadHistory()
+                            allRecords = dataStorage.loadHistory()
+                            filterRecords(searchInput.text.toString())
                         }
                         .setNegativeButton("Отмена", null)
                         .show()

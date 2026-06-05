@@ -34,8 +34,11 @@ class CreateApartmentActivity : AppCompatActivity() {
     data class CounterRow(
         val nameInput: EditText,
         val tariffInput: EditText,
-        val isWaterCheckbox: CheckBox
+        val isWaterCheckbox: CheckBox,
+        var selectedIcon: String? = "📊"
     )
+
+    private val icons = listOf("💡", "💧", "🔥", "🌡️", "📊")
 
     data class FixedPaymentRow(
         val nameInput: EditText,
@@ -192,7 +195,7 @@ class CreateApartmentActivity : AppCompatActivity() {
         })
     }
 
-    private fun addCounterRow(name: String = "", tariff: Double = 0.0, isWater: Boolean = false) {
+    private fun addCounterRow(name: String = "", tariff: Double = 0.0, isWater: Boolean = false, icon: String = "📊") {
         val card = MaterialCardView(this).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -258,11 +261,52 @@ class CreateApartmentActivity : AppCompatActivity() {
         bottomRow.addView(isWaterCheckbox)
         outer.addView(bottomRow)
 
+        val row = CounterRow(nameInput, tariffInput, isWaterCheckbox, icon)
+        counterRows.add(row)
+
+        // Строка выбора иконки
+        val iconRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { topMargin = dp(8) }
+        }
+        val iconButtons = mutableListOf<Button>()
+        icons.forEach { emoji ->
+            val btn = Button(this).apply {
+                text = emoji
+                textSize = 20f
+                setBackgroundColor(
+                    if (emoji == row.selectedIcon)
+                        ContextCompat.getColor(this@CreateApartmentActivity, R.color.btn_edit_bg)
+                    else android.graphics.Color.TRANSPARENT
+                )
+                layoutParams = LinearLayout.LayoutParams(dp(44), dp(44)).apply { marginEnd = dp(4) }
+                setOnClickListener {
+                    if (row.selectedIcon == emoji) {
+                        row.selectedIcon = null
+                        iconButtons.forEach { b -> b.setBackgroundColor(android.graphics.Color.TRANSPARENT) }
+                    } else {
+                        row.selectedIcon = emoji
+                        iconButtons.forEach { b ->
+                            b.setBackgroundColor(
+                                if (b.text == emoji)
+                                    ContextCompat.getColor(this@CreateApartmentActivity, R.color.btn_edit_bg)
+                                else android.graphics.Color.TRANSPARENT
+                            )
+                        }
+                    }
+                }
+            }
+            iconButtons.add(btn)
+            iconRow.addView(btn)
+        }
+        outer.addView(iconRow)
+
         card.addView(outer)
         countersContainer.addView(card)
 
-        val row = CounterRow(nameInput, tariffInput, isWaterCheckbox)
-        counterRows.add(row)
         deleteBtn.setOnClickListener {
             countersContainer.removeView(card)
             counterRows.remove(row)
@@ -324,7 +368,7 @@ class CreateApartmentActivity : AppCompatActivity() {
         val config = dataStorage.loadApartmentConfig(editingApartmentId) ?: return
         nameInput.setText(config.name)
 
-        config.counters.forEach { addCounterRow(it.name, it.tariff, it.isWater) }
+        config.counters.forEach { addCounterRow(it.name, it.tariff, it.isWater, it.icon ?: "📊") }
 
         if (config.hasWaterDisposal) {
             waterDisposalCheckbox.isChecked = true
@@ -381,7 +425,7 @@ class CreateApartmentActivity : AppCompatActivity() {
                 return
             }
             val tariff = row.tariffInput.text.toString().trim().replace(',', '.').toDoubleOrNull() ?: 0.0
-            counters.add(CounterConfig(counterName, tariff, row.isWaterCheckbox.isChecked))
+            counters.add(CounterConfig(counterName, tariff, row.isWaterCheckbox.isChecked, row.selectedIcon))
         }
 
         val hasWaterDisposal = waterDisposalCheckbox.isChecked

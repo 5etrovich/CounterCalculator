@@ -55,7 +55,7 @@ class InputActivity : AppCompatActivity() {
 
         config.counters.forEach { counter ->
             val previousValue = previousData[counter.name] ?: 0.0
-            layout.addView(createInputCard(counter.name, previousValue))
+            layout.addView(createInputCard(counter.name, previousValue, counter.icon ?: ""))
         }
 
         val buttonContainer = LinearLayout(this).apply {
@@ -95,7 +95,7 @@ class InputActivity : AppCompatActivity() {
         layout.addView(buttonContainer)
     }
 
-    private fun createInputCard(counterName: String, previousValue: Double): MaterialCardView {
+    private fun createInputCard(counterName: String, previousValue: Double, icon: String = "📊"): MaterialCardView {
         return MaterialCardView(this).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -115,7 +115,7 @@ class InputActivity : AppCompatActivity() {
             }
 
             val title = TextView(this@InputActivity).apply {
-                text = counterName
+                text = if (icon.isNotEmpty()) "$icon $counterName" else counterName
                 setTextColor(ContextCompat.getColor(this@InputActivity, R.color.text_primary))
                 textSize = 18f
                 layoutParams = LinearLayout.LayoutParams(
